@@ -1,0 +1,111 @@
+:root {
+  --font-display: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  --transition: 0.4s ease;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+  --text-primary: #f8f6f1;
+  --text-secondary: #adadad;
+  --accent: #d4af37;
+  --accent-soft: rgba(212, 175, 55, 0.12);
+  --border-color: #2a2a2a;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+  --bg-primary: #faf8f3;
+  --bg-secondary: #f0ebe0;
+  --bg-card: #ffffff;
+  --text-primary: #14110e;
+  --text-secondary: #6b6358;
+  --accent: #b8901f;
+  --accent-soft: rgba(184, 144, 31, 0.1);
+  --border-color: #e5dfd3;
+  --shadow-color: rgba(20, 17, 14, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    border-color var(--transition);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+.brand {
+  font-family: var(--font-display);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+/* Shared eyebrow label - used across pages */
+.eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.accent {
+  color: var(--accent);
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    #f4d870 50%,
+    var(--accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Shared CSS-only fade-up animation, staggered via inline style/nth-child */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  opacity: 0;
+  animation: fadeUp 0.9s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
