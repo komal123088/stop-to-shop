@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="footer-grid">
         <div className="footer-brand">
           <div className="logo-group">
-            <img src="/logo1.png" alt="Stop and Shop Logo" className="logo" />
+            {/* <img src="/logo1.png" alt="Stop and Shop Logo" className="logo" /> */}
             <span className="brand">STOP & SHOP</span>
           </div>
           <p>Your one-stop premium shopping destination in South Africa.</p>
@@ -27,13 +27,13 @@ const Footer = () => {
         <div className="footer-contact">
           <h4>Contact</h4>
           <p>
-            <i className="bi bi-geo-alt"></i> South Africa
+            <i className="bi bi-geo-alt"></i> Beaufort west ok foods
           </p>
           <p>
             <i className="bi bi-envelope"></i> info@stopandshop.co.za
           </p>
           <p>
-            <i className="bi bi-telephone"></i> +27 00 000 0000
+            <i className="bi bi-telephone"></i> +27 60 911 9274
           </p>
           <div className="footer-socials">
             <a href="#" aria-label="Facebook">
