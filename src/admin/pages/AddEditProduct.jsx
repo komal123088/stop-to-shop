@@ -4,7 +4,7 @@ import api from "../../api/api.js";
 import { PRODUCTS, CATEGORIES, ORDERS, USERS } from "../../api/apiEndpoints.js";
 import "../components/AdminShared.css";
 import "./AddEditProduct.css";
-
+// categories
 const CATEGORY_SPECS = {
   electronics: [
     "Brand",
