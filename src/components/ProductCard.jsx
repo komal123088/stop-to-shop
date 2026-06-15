@@ -5,8 +5,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
-  const salePrice = product.discount
-    ? (product.price * (1 - product.discount / 100)).toFixed(2)
+
+  const hasDiscount = product.discount > 0;
+  const salePrice = hasDiscount
+    ? (product.price * (1 - product.discount / 100)).toFixed(0)
     : null;
 
   return (
@@ -21,20 +23,23 @@ const ProductCard = ({ product }) => {
           />
         ) : (
           <div className="product-card__no-img">
-            <i className="bi bi-image"></i>
+            <i className="bi bi-phone"></i>
           </div>
         )}
 
-        {product.discount > 0 && (
-          <span className="product-card__discount">-{product.discount}%</span>
+        {hasDiscount && (
+          <span className="product-card__discount-badge">
+            -{product.discount}% OFF
+          </span>
         )}
+
         {product.stock === 0 && (
-          <span className="product-card__out">Out of Stock</span>
+          <span className="product-card__out-badge">Out of Stock</span>
         )}
 
         <div className="product-card__overlay">
           <button
-            className="product-card__quick"
+            className="product-card__quick-btn"
             onClick={() => navigate(`/product/${product._id}`)}
           >
             <i className="bi bi-eye"></i> Quick View
@@ -51,16 +56,21 @@ const ProductCard = ({ product }) => {
         {product.subCategory && (
           <span className="product-card__sub">{product.subCategory}</span>
         )}
+
+        {/* Price — strikethrough original, then sale */}
         <div className="product-card__prices">
-          <span className="product-card__sale">
-            R{" "}
-            {salePrice
-              ? Number(salePrice).toLocaleString()
-              : product.price?.toLocaleString()}
-          </span>
-          {salePrice && (
-            <span className="product-card__original">
-              R {product.price?.toLocaleString()}
+          {hasDiscount ? (
+            <>
+              <span className="product-card__original">
+                R {Number(product.price).toLocaleString()}
+              </span>
+              <span className="product-card__sale">
+                R {Number(salePrice).toLocaleString()}
+              </span>
+            </>
+          ) : (
+            <span className="product-card__price-only">
+              R {Number(product.price).toLocaleString()}
             </span>
           )}
         </div>
@@ -69,7 +79,7 @@ const ProductCard = ({ product }) => {
       {/* Button */}
       <div className="product-card__footer">
         <button
-          className="product-card__btn"
+          className="product-card__cart-btn"
           disabled={product.stock === 0}
           onClick={() => navigate(`/product/${product._id}`)}
         >
@@ -83,11 +93,11 @@ const ProductCard = ({ product }) => {
 
 export const SkeletonCard = () => (
   <div className="skeleton-card">
-    <div className="skeleton skeleton-img"></div>
-    <div className="skeleton skeleton-line long"></div>
-    <div className="skeleton skeleton-line short"></div>
-    <div className="skeleton skeleton-line long"></div>
-    <div className="skeleton skeleton-btn"></div>
+    <div className="skeleton sk-img"></div>
+    <div className="skeleton sk-line w50"></div>
+    <div className="skeleton sk-line w80"></div>
+    <div className="skeleton sk-line w65"></div>
+    <div className="skeleton sk-btn"></div>
   </div>
 );
 

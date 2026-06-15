@@ -23,7 +23,8 @@ const Shop = () => {
   const [total, setTotal] = useState(0);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [priceInput, setPriceInput] = useState({ min: "", max: "" });
 
   const [filters, setFilters] = useState({
     category: searchParams.get("category") || "",
@@ -35,21 +36,15 @@ const Shop = () => {
     page: Number(searchParams.get("page")) || 1,
   });
 
-  const [priceInput, setPriceInput] = useState({
-    min: filters.minPrice,
-    max: filters.maxPrice,
-  });
-
   // Load categories
   useEffect(() => {
     api.get(CATEGORIES.GET_ALL_PUBLIC).then((r) => setCategories(r.data));
   }, []);
 
-  // Update subcats when category changes
+  // Update subcats on category change
   useEffect(() => {
     const cat = categories.find((c) => c._id === filters.category);
     setSubCats(cat?.subCategories || []);
-    if (!cat) setFilters((f) => ({ ...f, subCategory: "" }));
   }, [filters.category, categories]);
 
   // Fetch products
@@ -63,8 +58,6 @@ const Shop = () => {
       if (filters.search) params.append("search", filters.search);
       if (filters.minPrice) params.append("minPrice", filters.minPrice);
       if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
-
-      // sort → backend params
       if (filters.sort === "price_asc") {
         params.append("sortBy", "price");
         params.append("order", "asc");
@@ -93,7 +86,7 @@ const Shop = () => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Sync filters → URL
+  // Sync to URL
   useEffect(() => {
     const p = {};
     Object.entries(filters).forEach(([k, v]) => {
@@ -131,64 +124,60 @@ const Shop = () => {
 
   return (
     <div className="shop-page">
-      {/* Page Header */}
-      <div className="shop-page__header">
-        <h1>
-          <span className="accent">{activeCatName}</span>
-          {filters.search && (
-            <>
-              {" "}
-              — "<span className="accent">{filters.search}</span>"
-            </>
-          )}
-        </h1>
-        <p>
-          {total} product{total !== 1 ? "s" : ""} found
-        </p>
+      {/* Banner */}
+      <div className="shop-banner">
+        <div>
+          <h1>
+            <span className="accent">{activeCatName}</span>
+            {filters.search && <> — "{filters.search}"</>}
+          </h1>
+          <p>
+            {total} product{total !== 1 ? "s" : ""} available
+          </p>
+        </div>
       </div>
 
-      <div className="shop-layout">
-        {/* Sidebar Filters */}
-        <aside className={`shop-filters ${filterOpen ? "open" : ""}`}>
-          <div className="shop-filters__title">
-            <span>
+      <div className="shop-body">
+        {/* Sidebar */}
+        <aside className={`shop-sidebar ${sidebarOpen ? "open" : ""}`}>
+          <div className="sidebar-header">
+            <h3>
               <i className="bi bi-funnel" style={{ marginRight: "0.4rem" }}></i>
               Filters
-            </span>
-            <button className="shop-filters__clear" onClick={clearAll}>
+            </h3>
+            <button className="sidebar-clear" onClick={clearAll}>
               Clear All
             </button>
           </div>
 
           {/* Category */}
-          <div className="filter-section">
+          <div className="filter-block">
             <h4>Category</h4>
             <label
-              className={`filter-option ${!filters.category ? "active" : ""}`}
+              className={`filter-option ${!filters.category ? "selected" : ""}`}
             >
               <input
                 type="radio"
                 name="cat"
                 checked={!filters.category}
                 onChange={() => setFilter("category", "")}
+                readOnly
               />
               All Categories
             </label>
             {categories.map((cat) => (
               <label
                 key={cat._id}
-                className={`filter-option ${filters.category === cat._id ? "active" : ""}`}
+                className={`filter-option ${filters.category === cat._id ? "selected" : ""}`}
               >
                 <input
                   type="radio"
                   name="cat"
                   checked={filters.category === cat._id}
                   onChange={() => setFilter("category", cat._id)}
+                  readOnly
                 />
-                <i
-                  className={`bi ${cat.icon}`}
-                  style={{ fontSize: "0.9rem" }}
-                ></i>
+                <i className={`bi ${cat.icon}`}></i>
                 {cat.name}
               </label>
             ))}
@@ -196,29 +185,31 @@ const Shop = () => {
 
           {/* Subcategory */}
           {subCats.length > 0 && (
-            <div className="filter-section">
+            <div className="filter-block">
               <h4>Sub Category</h4>
               <label
-                className={`filter-option ${!filters.subCategory ? "active" : ""}`}
+                className={`filter-option ${!filters.subCategory ? "selected" : ""}`}
               >
                 <input
                   type="radio"
                   name="sub"
                   checked={!filters.subCategory}
                   onChange={() => setFilter("subCategory", "")}
+                  readOnly
                 />
                 All
               </label>
               {subCats.map((s) => (
                 <label
                   key={s.slug}
-                  className={`filter-option ${filters.subCategory === s.name ? "active" : ""}`}
+                  className={`filter-option ${filters.subCategory === s.name ? "selected" : ""}`}
                 >
                   <input
                     type="radio"
                     name="sub"
                     checked={filters.subCategory === s.name}
                     onChange={() => setFilter("subCategory", s.name)}
+                    readOnly
                   />
                   {s.name}
                 </label>
@@ -227,9 +218,9 @@ const Shop = () => {
           )}
 
           {/* Price */}
-          <div className="filter-section">
+          <div className="filter-block">
             <h4>Price Range (ZAR)</h4>
-            <div className="price-inputs">
+            <div className="price-row">
               <input
                 type="number"
                 placeholder="Min"
@@ -248,43 +239,29 @@ const Shop = () => {
               />
             </div>
             <button className="price-apply" onClick={applyPrice}>
-              Apply
+              Apply Price
             </button>
-          </div>
-
-          {/* In Stock */}
-          <div className="filter-section">
-            <h4>Availability</h4>
-            <label className="filter-option">
-              <input
-                type="checkbox"
-                checked={!!filters.inStock}
-                onChange={(e) =>
-                  setFilter("inStock", e.target.checked ? "1" : "")
-                }
-              />
-              In Stock Only
-            </label>
           </div>
         </aside>
 
-        {/* Overlay for mobile */}
+        {/* Overlay mobile */}
         <div
-          className={`filter-overlay ${filterOpen ? "open" : ""}`}
-          onClick={() => setFilterOpen(false)}
+          className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
+          onClick={() => setSidebarOpen(false)}
         ></div>
 
-        {/* Right: Topbar + Grid */}
-        <div className="shop-right">
+        {/* Main Content */}
+        <div className="shop-content">
+          {/* Topbar */}
           <div className="shop-topbar">
             <button
-              className="shop-filter-toggle"
-              onClick={() => setFilterOpen(true)}
+              className="mobile-filter-btn"
+              onClick={() => setSidebarOpen(true)}
             >
               <i className="bi bi-funnel"></i> Filters
             </button>
 
-            <div className="shop-search">
+            <div className="shop-search-box">
               <i className="bi bi-search"></i>
               <input
                 placeholder="Search products..."
@@ -293,8 +270,8 @@ const Shop = () => {
               />
             </div>
 
-            <div className="shop-topbar-right">
-              <span className="shop-count">{total} items</span>
+            <div className="topbar-right">
+              <span className="shop-result-count">{total} items</span>
               <select
                 className="shop-sort"
                 value={filters.sort}
@@ -309,6 +286,7 @@ const Shop = () => {
             </div>
           </div>
 
+          {/* Grid */}
           <div className="shop-grid">
             {loading ? (
               [...Array(LIMIT)].map((_, i) => <SkeletonCard key={i} />)
@@ -316,7 +294,7 @@ const Shop = () => {
               <div className="shop-empty">
                 <i className="bi bi-search"></i>
                 <h3>No products found</h3>
-                <p>Try adjusting your filters or search term</p>
+                <p>Try adjusting your filters or search</p>
               </div>
             ) : (
               products.map((p) => <ProductCard key={p._id} product={p} />)
@@ -335,7 +313,7 @@ const Shop = () => {
               {[...Array(pages)].map((_, i) => (
                 <button
                   key={i}
-                  className={filters.page === i + 1 ? "active" : ""}
+                  className={filters.page === i + 1 ? "pg-active" : ""}
                   onClick={() => setFilter("page", i + 1)}
                 >
                   {i + 1}
