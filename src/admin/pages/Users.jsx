@@ -3,6 +3,7 @@ import api from "../../api/api.js";
 import { PRODUCTS, CATEGORIES, ORDERS, USERS } from "../../api/apiEndpoints.js";
 import "../components/AdminShared.css";
 
+
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
